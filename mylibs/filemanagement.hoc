@@ -1,0 +1,15 @@
+
+// Defining object reference for recording the stimulation signals
+
+objref V_file[nsoma],   vectorVoltage[nsoma]
+objref i_inputref,      i_inputfile
+objref timeref,         t_file
+
+timeref = new Vector()
+
+for i = 0,nsoma-1{          // For each neuron, defined and created..
+ // Defining the vectors and the traces recorded in
+ vectorVoltage[i] = new Vector()
+ vectorVoltage[i].record(&soma[i].v(.5)) 
+}
+

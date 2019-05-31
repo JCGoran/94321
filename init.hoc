@@ -1,0 +1,120 @@
+//
+// "Inferring connection proximity in networks of electrically coupled cells 
+//  by subthreshold frequency response analysis "
+//
+//  by C. Cali', ...., & M. Giugliano (2007)
+//
+// C. Cali' & M. Giugliano, Brain Mind Institute, EPFL, Apr 2006
+//
+//
+//
+// THIS SIMULATIONS CREATES A LINEAR CHAIN OF nsoma (single/multi)COMPARTMENTAL NEURONS,
+// EACH CONNECTED ONLY TO ITS 2 NEAREST NEIGHBORS..
+//
+//
+
+nsoma    = 5                // How many neurons do we want to simulate ?
+stim     = 0
+// Out of nsoma cells, which one does need to be stimulated (just one at the time) ?
+// Careful: stim can goes from 0, 1, 2..., nsoma-1 !!
+sc       = 0                // Set it to 1 for single-compartmental models, 0, otherwise..
+ggap     = 40               // [nS] Strength of individual gap junctions between cells.
+
+
+ChirpDuration = 2000        // [ms] duration of the chirp stimulation
+Vrest         = -65         // 
+celsius       = 35          // temperature in degrees celsius
+
+//cvode_active(0)     // fixed integration time step
+dt            = 0.00250    // integration time step to 2.5 ns
+
+print "Dec 2006 - Michele Giugliano and Corrado Cali'"
+print "Brain Mind Institute, EPFL of Lausanne"
+print "Initializing and starting a simulation with ", nsoma, " neurons"
+print "coupled by gap junction of conductance ", ggap, " nS"
+
+load_file("nrngui.hoc")                    // Loading of the standard GUI controls...
+load_file("mylibs/graphs.hoc")             // Loading some ad-hoc proc for displaying live traces...
+load_file("mylibs/nsinglecompneuron.hoc")  // Loading the model cell template..
+load_file("mylibs/gap.hoc")                // Loading the model template for gap junctions by Migliore et al., 2005
+load_file("mylibs/ncellsgj.hoc")           // Loading model neuron (morphology, biophysics, etc)...
+load_file("mylibs/Izap_proc.hoc")          // Loading che procedure for a zap current injection...
+load_file("mylibs/filemanagement.hoc")     // Loading che procedure for file management...
+
+//-----------------------------------------------------------------------------------
+//
+// Let's now (randomly) define the passive properties of cellular membranes
+//
+// e.g. cm = 1 uF/cm^2, g_pas = 0.04 mS/cm^2  --> tau = 25 ms
+// e.g. cm = 1 uF/cm^2, g_pas = 0.1  mS/cm^2  --> tau = 10 ms
+objref r
+r = new Random()
+r.uniform(0.04e-3, 0.1e-3)
+for i = 0,nsoma-1{              // For each neuron, defined and created..
+ // SOMA
+ soma[i].cm    = 1              // [uF]
+ soma[i].g_pas = r.repick       // [S] avoids constructor/destructor overhead..
+ Rin           = 1e-6 / (surf2 * soma[i].g_pas)         // MOhm
+ tau           = 1e-3 * soma[i].cm / soma[i].g_pas      // ms
+ print "Cell #", i, "Input resistance:", Rin, "MOhm"
+ print "Cell #", i, "Time constant:", tau, "ms"
+
+ if (sc == 0) {                 // In case it is a multicompartmental model..
+ // PRIDEN                      // let's take care of dendrite parameters..
+ priden[i].cm    = 1            // [uF]
+ priden[0].g_pas = r.repick()   // [S] avoids constructor/destructor overhead..
+ } // end  if (sc == 0)
+} //-----------------------------------------------------------------------------------
+
+//
+// ACCESSING THE CELL THAT IS GOING TO RECEIVE THE STIMULATION
+//
+access soma[stim]
+timeref.record(&t)
+InjectChirp(10, 400, .75, .75, -0.3, ChirpDuration, .5)     // Chirp current injection (Point process)
+i_inputref = new Vector()                       // Input (injected) current is assigned to a vector
+i_inputref.record(&fl.i)                        // and written, to be later recovered from file..
+//
+//f1            = 10  Hz      initial frequency of the chirp
+//f2            = 200 Hz      final frequency of the chirp
+//Astart        = 500 pA      initial amplitude of the chirp
+//Astop         = 500 pA      final amplitude of the chirp
+//Offset        = -0.1 nA     offset level [CHECK THIS]
+//ChirpDuration = 1000 ms     duration of the chirp stimulation
+//Location      = 0.5         location within the neuronal morphology
+//
+
+//
+// SIMULATION CONTROL
+//
+
+tstart = 0         // [ms]
+tstop  = 200. + ChirpDuration + 100.
+addgraph("soma[0].v(0.5)",-68.2, -63.7)
+addgraph("soma[1].v(0.5)",-65.43, -64.86)
+
+t      = 0.
+tstart = 0.        // [ms]
+tstop  = 200       // [ms]
+finitialize(Vrest) //
+
+proc execute_simulation() {
+  run()
+
+  tstop  = t + ChirpDuration + 100    // [ms]
+  continuerun(tstop)
+}
+
+proc write_results() {
+
+  load_file("mylibs/write_on_disk.hoc")     // Loading che procedure for file management...
+
+  print "Simulation done! Find the raw data in the <output> directory!"
+}
+
+xpanel("Cali et al. 2007")
+xlabel("Simulation has been initialized")
+xbutton("run","execute_simulation()")
+xbutton("write results to output dir","write_results()")
+xbutton("quit","quit()")
+xpanel()

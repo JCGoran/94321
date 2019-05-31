@@ -1,0 +1,44 @@
+// Let's define file name appropriately..
+
+objref fobk
+fobk = new File("../output/stim_index.txt")
+fobk.wopen()
+fobk.printf("%d",stim)
+fobk.close()
+
+strdef t_s
+sprint(t_s,"../output/chirp_t_gj.x")
+print "Writing time axis ", t_s, ".."
+t_file = new File(t_s)
+t_file.wopen()
+//timeref.printf(t_file,"%f\n")
+timeref.vwrite(t_file)
+t_file.close()
+print "done!"
+
+strdef i_in_s
+sprint(i_in_s,"../output/chirp_i_in_gj.x")
+print "Writing chirp waveform ", i_in_s, ".."
+i_inputfile = new File(i_in_s)
+i_inputfile.wopen()
+//i_inputref.printf(i_inputfile,"%f\n")
+i_inputref.vwrite(i_inputfile)
+i_inputfile.close()
+print "done!"
+
+
+// Writing on disk
+strdef v_s
+for i = 0,nsoma-1{          // For each neuron, defined and created..
+ sprint(v_s,"../output/chirp_%dv_gj.x",i)
+ print "Writing file ", v_s, ".."
+ V_file[i] = new File(v_s)
+ V_file[i].wopen()
+ //vectorVoltage[i].printf(V_file[i],"%f\n")
+ vectorVoltage[i].vwrite(V_file[i])
+ V_file[i].close()
+ print "done!"
+}
+
+
+

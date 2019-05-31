@@ -1,0 +1,25 @@
+//
+// Create 'n' cells linked by a gap-junction
+//
+// C. Cali' & M. Giugliano, Brain Mind Institute, EPFL, Apr 2006
+//
+
+ngap     = 1                            // Gap junctions for each cell
+totalgap = ngap * (nsoma-1)             // Total number of gap junctions
+
+objref gap[totalgap]                    // Object for Gap-junctions
+
+rel      = 0.5                          //
+
+for ii = 0,nsoma-2{
+  gap[ii] = new Gap()                     // Creates a new instance of a Gap junction..
+if (sc == 0) {
+  priden[ii] gap[ii].src(rel)             // Source cell..
+  priden[ii+1] gap[ii].target(rel)        // Target cell..
+} else {
+  print ii
+  soma[ii] gap[ii].src(rel)             // Source cell..
+  soma[ii+1] gap[ii].target(rel)        // Target cell..
+ }
+  gap[ii].g(ggap)                         // Sets the conductance..
+}

@@ -1,0 +1,67 @@
+
+create soma[nsoma]          // This creates a linear chain of neurons..
+//if (sc == 0) { create priden[nsoma] }   // ..with a dendrite.
+
+create priden[nsoma]    // ..with a dendrite.
+
+for i = 0,nsoma-1{          // For each neuron, defined and created..
+
+ if (sc == 0) { connect priden[i](0), soma[i](1) }
+        
+   // ---> SOMA <--- 
+        soma[i] {             
+        L     = 65          // [um] 
+        diam  = 65          // [um] 
+        nseg  = 1        
+
+        surf  = diam * 3.14159265 * L   // [um^2]   
+        surf2 = surf * 1e-8             // [cm^2]
+        
+        print "Cell surface:", surf, "um^2 (", surf2, "cm^2 )"
+
+        insert pas          // inserts passive mechanisms
+        g_pas = 0           // !!..to be later assigned..!!
+                            // [S/cm^2]  - Leak currents, maximal specific conductance
+        e_pas = -65.        // [mV]      - Leak currents, reversal potential
+        cm    = 1.          // [uF/cm^2] - specific membrane capacitance
+        Ra    = 35.4        // [ohm cm]  - axial/cytosolic resistivity
+
+        insert hh2          // inserts Na+ and K+ currents responsible for APs
+        gnabar  = 0.0516    // [S/cm^2]  - Na+ currents, maximal specific conductance
+        gkbar   = 0.002     // [S/cm^2]  - K+ currents, maximal specific conductance
+
+        ena     = 50        // [mV]  - Na+ currents, reversal potential
+        ek      = -90       // [mV]  - K+ currents, reversal potential
+        vtraub  = -63       // [mV]  - threshold shift potential
+
+        } // end soma[i]
+
+ if (sc == 0) {
+      // ---> DENDRITE <---
+        priden[i] {             
+        L = 900
+        //L = 350                     
+        diam = 80                  
+        nseg = 5        
+
+        insert pas                  // insert passive mechanisms
+        //g_pas = 4.52e-5
+        g_pas = 24.6e-6 * 0.5 * ((i + 1)^2)
+        e_pas = -65.
+        cm = 1.
+        //Ra = 600.
+        Ra = 250.
+
+        insert hh2          // inserts Na+ and K+ currents responsible for APs
+
+        gnabar  = 0.0516    // [S/cm^2]  - Na+ currents, maximal specific conductance
+        gkbar   = 0.002     // [S/cm^2]  - K+ currents, maximal specific conductance
+
+        ena     = 50        // [mV]  - Na+ currents, reversal potential
+        ek      = -90       // [mV]  - K+ currents, reversal potential
+        vtraub  = -63       // [mV]  - threshold shift potential
+      } //  end priden[i] 
+    } // end  if (sc == 0)
+
+ } // end for i
+

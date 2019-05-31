@@ -1,0 +1,31 @@
+//
+// InjectChirp()
+//
+// Zap current injection procedure
+// This defines a user-function InjectChirp(), taking 7 input parameters..
+//
+// C. Cali' & M. Giugliano, Brain Mind Institute, EPFL, Apr 2006
+//
+
+objref fl
+
+proc InjectChirp() {
+
+f1            = $1          // initial frequency of the chirp
+f2            = $2          // final frequency of the chirp
+Astart        = $3          // initial amplitude of the chirp
+Astop         = $4          // final amplitude of the chirp
+Offset        = $5          // offset level
+ChirpDuration = $6          // duration of the chirp stimulation
+Location      = $7          // location in the neuronal morphology
+
+fl = new Izap(Location)     // "Chirp" or ZAP waveform
+fl.Ioff       = Offset
+fl.Astart     = Astart
+fl.Astop      = Astop
+fl.ttstart    = 200.        // The chirp starts at t = 200 ms
+fl.ttstop     = fl.ttstart + ChirpDuration
+fl.Fstart     = f1
+fl.Fstop      = f2
+
+} // end InjectChirp()

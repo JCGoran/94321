@@ -1,0 +1,9 @@
+//moddir mechanisms
+{load_file("nrngui.hoc")}
+//{load_file("runme.hoc")}
+// note that init.hoc and runme.hoc are identical except that
+
+// init.hoc has been broken into initialization, execution, file
+// writing, and quiting.
+
+{load_file("init.hoc")}
