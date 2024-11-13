@@ -49,6 +49,7 @@ load_file("mylibs/filemanagement.hoc")     // Loading che procedure for file man
 // e.g. cm = 1 uF/cm^2, g_pas = 0.1  mS/cm^2  --> tau = 10 ms
 objref r
 r = new Random()
+r.Random123()
 r.uniform(0.04e-3, 0.1e-3)
 for i = 0,nsoma-1{              // For each neuron, defined and created..
  // SOMA
